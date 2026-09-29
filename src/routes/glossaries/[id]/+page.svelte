@@ -21,7 +21,7 @@
   import * as Tabs from "#lib/components/ui/tabs/index.js";
   import { MAX_TERM_BYTES, utf8Bytes } from "#lib/glossary/tsv.js";
   import PairLabel from "#lib/components/pair-label.svelte";
-  import { pairLabel, sameLang, sourceLanguages, targetLanguages } from "#lib/languages.js";
+  import { pairLabel, sameLang, sourceLanguages, targetLanguages } from "#lib/utils/languages.js";
   import type { GlossaryDictionaryInfo } from "#lib/server/deepl/types.js";
   import { errorStatus, reportError } from "#lib/ui-state.svelte.js";
   import {
@@ -32,8 +32,8 @@
     listGlossaries,
     renameGlossary,
     saveDictionary,
-  } from "../../glossaries.remote";
-  import { getLanguages } from "../../meta.remote";
+  } from "#lib/remote/glossaries.remote.js";
+  import { getLanguages } from "#lib/remote/meta.remote.js";
 
   const id = $derived(page.params.id!);
   const glossaryQuery = $derived(getGlossary(id));

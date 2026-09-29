@@ -1,21 +1,21 @@
 <script lang="ts">
-  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
-  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
-  import PlusIcon from "@lucide/svelte/icons/plus";
-  import XIcon from "@lucide/svelte/icons/x";
-  import { tick } from "svelte";
-  import { toast } from "svelte-sonner";
   import LanguageCombobox from "#lib/components/language-combobox.svelte";
   import { Button } from "#lib/components/ui/button/index.js";
   import * as Dialog from "#lib/components/ui/dialog/index.js";
   import { Input } from "#lib/components/ui/input/index.js";
   import { Label } from "#lib/components/ui/label/index.js";
   import { trimEntries, validateEntries, type GlossaryEntry } from "#lib/glossary/tsv.js";
-  import { pairLabel, sameLang, sourceLanguages, targetLanguages } from "#lib/languages.js";
   import type { Glossary } from "#lib/server/deepl/types.js";
   import { reportError } from "#lib/ui-state.svelte.js";
-  import { createGlossary } from "../../routes/glossaries.remote";
-  import { getLanguages } from "../../routes/meta.remote";
+  import { pairLabel, sameLang, sourceLanguages, targetLanguages } from "#lib/utils/languages.js";
+  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
+  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
+  import PlusIcon from "@lucide/svelte/icons/plus";
+  import XIcon from "@lucide/svelte/icons/x";
+  import { tick } from "svelte";
+  import { toast } from "svelte-sonner";
+  import { getLanguages } from "../remote/meta.remote.js";
+  import { createGlossary } from "../remote/glossaries.remote.js";
 
   interface Props {
     open: boolean;

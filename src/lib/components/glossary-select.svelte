@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import type { Glossary } from "#lib/server/deepl/types.js";
-  import { baseLang, sameLang } from "#lib/languages.js";
+  import { baseLang, sameLang } from "#lib/utils/languages.js";
 
   /** Glossaries with a dictionary for `(source, baseLang(target))`. */
   export function glossariesForPair(glossaries: Glossary[], source: string, target: string): Glossary[] {

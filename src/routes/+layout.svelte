@@ -1,20 +1,20 @@
 <script lang="ts">
-  import "./layout.css";
-  import LanguagesIcon from "@lucide/svelte/icons/languages";
-  import { ModeWatcher } from "mode-watcher";
-  import { page } from "$app/state";
-  import { resolve } from "$app/paths";
-  import { watchAccessSession } from "#lib/access-session.js";
   import favicon from "#lib/assets/favicon.svg";
   import ThemeToggle from "#lib/components/theme-toggle.svelte";
-  import UsageMeter from "#lib/components/usage-meter.svelte";
   import { Toaster } from "#lib/components/ui/sonner/index.js";
   import * as Tooltip from "#lib/components/ui/tooltip/index.js";
+  import UsageMeter from "#lib/components/usage-meter.svelte";
   import { THEME_COLORS } from "#lib/config.js";
   import { ui } from "#lib/ui-state.svelte.js";
   import { cn } from "#lib/utils.js";
-  import { getUsage } from "./meta.remote";
+  import { watchAccessSession } from "#lib/utils/access-session.js";
   import { beforeNavigate } from "$app/navigation";
+  import { resolve } from "$app/paths";
+  import { page } from "$app/state";
+  import LanguagesIcon from "@lucide/svelte/icons/languages";
+  import { ModeWatcher } from "mode-watcher";
+  import "./layout.css";
+  import { getUsage } from "#lib/remote/meta.remote.js";
 
   let { children } = $props();
 

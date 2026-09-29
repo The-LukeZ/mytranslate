@@ -1,6 +1,6 @@
 import { command, query } from "$app/server";
 import { parseTsv, serializeTsv, trimEntries, type GlossaryEntry } from "#lib/glossary/tsv.js";
-import { sameLang } from "#lib/languages.js";
+import { sameLang } from "#lib/utils/languages.js";
 import {
   AddTermSchema,
   CreateGlossarySchema,

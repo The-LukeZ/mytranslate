@@ -7,7 +7,7 @@
   import * as Drawer from "#lib/components/ui/drawer/index.js";
   import * as Popover from "#lib/components/ui/popover/index.js";
   import * as ScrollArea from "#lib/components/ui/scroll-area/index.js";
-  import { langLabel, sameLang, type Language } from "#lib/languages.js";
+  import { langLabel, sameLang, type Language } from "#lib/utils/languages.js";
   import { cn } from "#lib/utils.js";
 
   interface Props {

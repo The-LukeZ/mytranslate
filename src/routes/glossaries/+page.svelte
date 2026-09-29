@@ -1,15 +1,7 @@
 <script lang="ts">
-  import BookOpenIcon from "@lucide/svelte/icons/book-open";
-  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
-  import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
-  import PencilIcon from "@lucide/svelte/icons/pencil";
-  import PlusIcon from "@lucide/svelte/icons/plus";
-  import TrashIcon from "@lucide/svelte/icons/trash-2";
-  import { goto } from "$app/navigation";
-  import { resolve } from "$app/paths";
-  import { toast } from "svelte-sonner";
   import ConfirmDialog from "#lib/components/confirm-dialog.svelte";
   import CreateGlossaryDialog from "#lib/components/create-glossary-dialog.svelte";
+  import PairLabel from "#lib/components/pair-label.svelte";
   import { Badge } from "#lib/components/ui/badge/index.js";
   import { Button } from "#lib/components/ui/button/index.js";
   import * as Dialog from "#lib/components/ui/dialog/index.js";
@@ -18,10 +10,18 @@
   import { Label } from "#lib/components/ui/label/index.js";
   import { Skeleton } from "#lib/components/ui/skeleton/index.js";
   import * as Table from "#lib/components/ui/table/index.js";
-  import PairLabel from "#lib/components/pair-label.svelte";
+  import { deleteGlossary, listGlossaries, renameGlossary } from "#lib/remote/glossaries.remote.js";
   import type { Glossary } from "#lib/server/deepl/types.js";
   import { reportError } from "#lib/ui-state.svelte.js";
-  import { deleteGlossary, listGlossaries, renameGlossary } from "../glossaries.remote";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
+  import BookOpenIcon from "@lucide/svelte/icons/book-open";
+  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
+  import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
+  import PlusIcon from "@lucide/svelte/icons/plus";
+  import TrashIcon from "@lucide/svelte/icons/trash-2";
+  import { toast } from "svelte-sonner";
 
   const list = listGlossaries();
   const glossaries = $derived(list.current);

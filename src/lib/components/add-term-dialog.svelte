@@ -1,8 +1,4 @@
 <script lang="ts">
-  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
-  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
-  import TriangleAlertIcon from "@lucide/svelte/icons/triangle-alert";
-  import { toast } from "svelte-sonner";
   import PairLabel from "#lib/components/pair-label.svelte";
   import { Button } from "#lib/components/ui/button/index.js";
   import * as Dialog from "#lib/components/ui/dialog/index.js";
@@ -10,10 +6,14 @@
   import { Label } from "#lib/components/ui/label/index.js";
   import * as Select from "#lib/components/ui/select/index.js";
   import { MAX_TERM_BYTES, utf8Bytes } from "#lib/glossary/tsv.js";
-  import { pairLabel, sameLang } from "#lib/languages.js";
   import type { Glossary } from "#lib/server/deepl/types.js";
   import { reportError } from "#lib/ui-state.svelte.js";
-  import { addTerm, createGlossary, getEntries } from "../../routes/glossaries.remote";
+  import { pairLabel, sameLang } from "#lib/utils/languages.js";
+  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
+  import LoaderIcon from "@lucide/svelte/icons/loader-circle";
+  import TriangleAlertIcon from "@lucide/svelte/icons/triangle-alert";
+  import { toast } from "svelte-sonner";
+  import { addTerm, createGlossary, getEntries } from "../remote/glossaries.remote.js";
 
   interface Props {
     open: boolean;

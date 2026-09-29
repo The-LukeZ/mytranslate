@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSameTranslation } from "#lib/translate-history.js";
+import { isSameTranslation } from "#lib/utils/translate-history.js";
 
 const de = (text: string) => ({ text, sourceLang: "de", targetLang: "en-US" });
 

@@ -14,6 +14,16 @@
 </script>
 
 <script lang="ts">
+  import { Badge } from "#lib/components/ui/badge/index.js";
+  import { Button } from "#lib/components/ui/button/index.js";
+  import * as InputGroup from "#lib/components/ui/input-group/index.js";
+  import { Input } from "#lib/components/ui/input/index.js";
+  import * as Tooltip from "#lib/components/ui/tooltip/index.js";
+  import { validateEntries, type EntryField } from "#lib/glossary/tsv.js";
+  import { reportError } from "#lib/ui-state.svelte.js";
+  import { cn } from "#lib/utils.js";
+  import { pairLabel } from "#lib/utils/languages.js";
+  import { beforeNavigate } from "$app/navigation";
   import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import LoaderIcon from "@lucide/svelte/icons/loader-circle";
@@ -22,17 +32,7 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { tick, untrack } from "svelte";
   import { toast } from "svelte-sonner";
-  import { beforeNavigate } from "$app/navigation";
-  import { Badge } from "#lib/components/ui/badge/index.js";
-  import { Button } from "#lib/components/ui/button/index.js";
-  import { Input } from "#lib/components/ui/input/index.js";
-  import * as InputGroup from "#lib/components/ui/input-group/index.js";
-  import * as Tooltip from "#lib/components/ui/tooltip/index.js";
-  import { validateEntries, type EntryField } from "#lib/glossary/tsv.js";
-  import { pairLabel } from "#lib/languages.js";
-  import { reportError } from "#lib/ui-state.svelte.js";
-  import { cn } from "#lib/utils.js";
-  import { saveDictionary } from "../../routes/glossaries.remote";
+  import { saveDictionary } from "../remote/glossaries.remote.js";
 
   interface Props {
     glossaryId: string;
