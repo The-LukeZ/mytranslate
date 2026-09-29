@@ -76,35 +76,35 @@
 {/snippet}
 
 {#snippet items(touch: boolean)}
-    <Command.Empty>No language found.</Command.Empty>
-    <Command.Group>
-      {#if allowAuto}
-        <Command.Item
-          value={AUTO}
-          keywords={["auto", "detect"]}
-          data-checked={!value}
-          class={touch ? "min-h-11 text-base" : undefined}
-          onSelect={() => select(AUTO)}
-        >
-          <SparklesIcon class="opacity-60" />
-          Auto-detect
-        </Command.Item>
-      {/if}
-      {#each languages as lang (lang.lang)}
-        <Command.Item
-          value={lang.lang}
-          keywords={[lang.name, lang.lang]}
-          data-checked={sameLang(lang.lang, value)}
-          class={touch ? "min-h-11 text-base" : undefined}
-          onSelect={() => select(lang.lang)}
-        >
-          <div class="flex min-w-0 items-center gap-2">
-            <span class="w-14 shrink-0 text-xs whitespace-nowrap text-muted-foreground uppercase">{lang.lang}</span>
-            <span class="truncate">{lang.name}</span>
-          </div>
-        </Command.Item>
-      {/each}
-    </Command.Group>
+  <Command.Empty>No language found.</Command.Empty>
+  <Command.Group>
+    {#if allowAuto}
+      <Command.Item
+        value={AUTO}
+        keywords={["auto", "detect"]}
+        data-checked={!value}
+        class={touch ? "min-h-11 text-base" : undefined}
+        onSelect={() => select(AUTO)}
+      >
+        <SparklesIcon class="opacity-60" />
+        Auto-detect
+      </Command.Item>
+    {/if}
+    {#each languages as lang (lang.lang)}
+      <Command.Item
+        value={lang.lang}
+        keywords={[lang.name, lang.lang]}
+        data-checked={sameLang(lang.lang, value)}
+        class={touch ? "min-h-11 text-base" : undefined}
+        onSelect={() => select(lang.lang)}
+      >
+        <div class="flex min-w-0 items-center gap-2">
+          <span class="w-14 shrink-0 text-xs whitespace-nowrap text-muted-foreground uppercase">{lang.lang}</span>
+          <span class="truncate">{lang.name}</span>
+        </div>
+      </Command.Item>
+    {/each}
+  </Command.Group>
 {/snippet}
 
 {#snippet list(touch: boolean)}
