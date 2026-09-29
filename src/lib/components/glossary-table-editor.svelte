@@ -165,6 +165,7 @@
   // ── Unsaved-changes guards ─────────────────────────────────────────────────
   beforeNavigate((nav) => {
     if (!dirty) return;
+    if (nav.type === "link" && !nav.willUnload && nav.from?.url.href === nav.to?.url.href) return; // the layout cancels same-page clicks
     if (nav.type === "leave") {
       nav.cancel(); // lets the browser show its own beforeunload prompt
       return;
