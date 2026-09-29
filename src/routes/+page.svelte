@@ -52,6 +52,8 @@
   let result = $state<Translation | null>(null);
   /** Editable copy of the translation; edits never trigger a translation. */
   let output = $state("");
+  /** True once the user edits the translation; auto-translate then pauses until Translate is pressed. */
+  let outputEdited = $state(false);
   let copied = $state(false);
   let addTermOpen = $state(false);
   let optionsOpen = $state(false);
@@ -123,18 +125,27 @@
   let seq = 0;
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  async function doTranslate({ reveal = false } = {}) {
+  async function doTranslate({ manual = false } = {}) {
     autoTranslate.cancel();
-    if (!request) return resetOutput();
-    else if (requestKey === sentKey) return;
+    if (!request) return;
+    if (requestKey === sentKey) {
+      // Same input: pressing Translate restores the last translation over manual edits, without re-billing.
+      if (manual && outputEdited && result) {
+        output = result.text;
+        outputEdited = false;
+      }
+      return;
+    }
     const mine = ++seq;
     sentKey = requestKey;
     try {
       const next = await translate(request);
       if (mine !== seq) return;
       result = next;
+      if (outputEdited && !manual) return; // keep the user's edits; only Translate replaces them
       output = next.text;
-      if (reveal) revealOutput();
+      outputEdited = false;
+      if (manual) revealOutput();
     } catch (e) {
       if (mine !== seq) return;
       sentKey = ""; // let the same input be retried
@@ -145,7 +156,7 @@
   // Translate automatically once the input has been still for a second.
   const autoTranslate = useDebounce(() => doTranslate(), 1000);
   $effect(() => {
-    if (!requestKey || requestKey === sentKey) return;
+    if (!requestKey || requestKey === sentKey || outputEdited) return;
     untrack(() => autoTranslate().catch(() => {})); // a newer keystroke cancelled it
   });
 
@@ -156,13 +167,14 @@
     sentKey = "";
     result = null;
     output = "";
+    outputEdited = false;
   }
 
-  // An empty source means nothing to show: clear the translation too.
+  // An empty source means nothing to show: clear the translation, unless the user wrote it.
   $effect(() => {
     if (text.trim()) return;
     untrack(() => {
-      if (result || output || sentKey) resetOutput();
+      if (!outputEdited && (result || output || sentKey)) resetOutput();
     });
   });
 
@@ -189,11 +201,12 @@
       resetOutput();
       text = prevOutput;
       output = prevText;
+      sentKey = requestKey; // the output already shows this pair; don't bill a round trip
     }
   }
 
   async function copyOutput() {
-    if (!output) return;
+    if (!output.trim()) return;
     try {
       await navigator.clipboard.writeText(output);
       copied = true;
@@ -203,8 +216,14 @@
     }
   }
 
+  function onOutputInput() {
+    outputEdited = true;
+    autoTranslate.cancel();
+  }
+
   function clear() {
     text = "";
+    // Explicit clear also drops edited output, which the empty-source effect keeps.
     resetOutput();
     sourceEl?.focus();
   }
@@ -226,8 +245,8 @@
     if (!mod) return;
     if (e.key === "Enter") {
       e.preventDefault();
-      void doTranslate({ reveal: true });
-    } else if (e.shiftKey && e.key.toLowerCase() === "c" && result) {
+      void doTranslate({ manual: true });
+    } else if (e.shiftKey && e.key.toLowerCase() === "c" && output.trim()) {
       e.preventDefault();
       void copyOutput();
     }
@@ -348,7 +367,7 @@
       size="lg"
       class="flex-1 md:min-w-48 md:flex-none pointer-coarse:h-11"
       disabled={!canTranslate || translate.pending > 0}
-      onclick={() => doTranslate({ reveal: true })}
+      onclick={() => doTranslate({ manual: true })}
     >
       {#if translate.pending > 0}
         <LoaderIcon class="motion-safe:animate-spin" />
@@ -384,17 +403,21 @@
       aria-label="Translation"
       placeholder={translate.pending > 0 ? "Translating…" : "Translation"}
       class="min-h-32 flex-1 rounded-b-none border-0 bg-transparent p-4 text-base whitespace-pre-wrap focus-visible:ring-0 md:min-h-64 md:text-base"
+      oninput={onOutputInput}
     />
     <div class="flex min-h-10 flex-wrap items-center gap-2 border-t px-4 py-1.5 text-xs text-muted-foreground">
-      {#if result || output}
-        {#if result}
-          <Badge variant="secondary" title="Detected source language">
-            Detected: {langLabel(languages, result.detected_source_language)}
-          </Badge>
-          {#if result.billed_characters !== undefined}
-            <span class="tabular-nums">Billed: {nf.format(result.billed_characters)}</span>
-          {/if}
+      {#if result}
+        <Badge variant="secondary" title="Detected source language">
+          Detected: {langLabel(languages, result.detected_source_language)}
+        </Badge>
+        {#if result.billed_characters !== undefined}
+          <span class="tabular-nums">Billed: {nf.format(result.billed_characters)}</span>
         {/if}
+      {/if}
+      {#if outputEdited && result}
+        <span title="Auto-translate is paused. Press Translate to replace your edits.">Edited</span>
+      {/if}
+      {#if output.trim()}
         <Button
           variant="ghost"
           size="xs"

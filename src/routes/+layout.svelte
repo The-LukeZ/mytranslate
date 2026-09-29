@@ -27,15 +27,9 @@
     { href: resolve("/glossaries"), label: "Glossaries", match: (p: string) => p.startsWith("/glossaries") },
   ];
 
-  // Prevent navigation if the user is navigating to the same page
+  // Clicking a link to the page already shown is a no-op, not a reload of its state.
   beforeNavigate((nav) => {
-    const beforeRoute = nav.from?.url.href;
-    const afterRoute = nav.to?.url.href;
-    if (beforeRoute && afterRoute && beforeRoute === afterRoute) {
-      nav.cancel();
-      console.log("Navigation canceled: already on the same page. Where do you think you're going?");
-      return;
-    }
+    if (nav.type === "link" && !nav.willUnload && nav.from?.url.href === nav.to?.url.href) nav.cancel();
   });
 </script>
 
