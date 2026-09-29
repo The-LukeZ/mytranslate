@@ -1,42 +1,71 @@
-# sv
+# mytranslate
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A front-end for the DeepL API: translate text and manage DeepL v3 glossaries. SvelteKit (Svelte 5 runes) deployed as a Cloudflare Worker.
 
-## Creating a project
+> [!IMPORTANT]
+> The instance deployed from this repo is for personal use only due to the fact that the DeepL API key is a Worker secret and auth is done via CF Access.
+> If you want to use this app, fork the repo and deploy your own instance with your own DeepL API key.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project
-npx sv create my-app
-```
+- Translate text (up to `MAX_TEXT_CHARS`, default 30,000 characters) with source/target language, formality, context and model type.
+- DeepL v3 glossaries: list, create, rename, delete, edit entries inline, multiple language pairs per glossary, add a term directly from a translation.
+- Light/dark theme, keyboard shortcuts (`Ctrl/⌘+Enter` to translate, `Ctrl/⌘+Shift+C` to copy), usage counter against the monthly DeepL quota.
+- No server-side storage: the DeepL API key is a Worker secret, glossaries live in DeepL, preferences live in `localStorage`. Source text and context are never persisted.
 
-To recreate this project with the same configuration:
+## Stack
 
-```sh
-# recreate this project
-pnpm dlx sv@0.17.1 create --template minimal --types ts --add prettier vitest="usages:unit" tailwindcss="plugins:none" sveltekit-adapter="adapter:cloudflare+cfTarget:workers" experimental="features:async,remoteFunctions+versions:kit" --install pnpm .
-```
+- [SvelteKit](https://kit.svelte.dev/) on Svelte 5, `ssr = false`
+- [adapter-cloudflare](https://svelte.dev/docs/kit/adapter-cloudflare), deployed as a Cloudflare Worker
+- [shadcn-svelte](https://shadcn-svelte.com/) (bits-ui) + Tailwind CSS v4
+- [valibot](https://valibot.dev/) for validating SvelteKit remote functions
+- [Wrangler](https://developers.cloudflare.com/workers/wrangler/) for local dev and deploy
 
-## Developing
+## Setup
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
+Requires Node ≥24 and pnpm.
 
 ```sh
-npm run build
+pnpm install
 ```
 
-You can preview the production build with `npm run preview`.
+Create a `.dev.vars` file (or copy `.env.example`) with your DeepL API key:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```
+DEEPL_API_KEY="your-deepl-api-key"
+```
+
+## Development
+
+```sh
+pnpm dev
+```
+
+## Checks
+
+```sh
+pnpm check       # type-check (wrangler types + svelte-check)
+pnpm lint        # prettier --check
+pnpm format      # prettier --write
+pnpm test        # vitest
+```
+
+## Deploy
+
+```sh
+pnpm deploy      # builds and runs `wrangler deploy`
+```
+
+Set the `DEEPL_API_KEY` secret in the Cloudflare Worker before deploying:
+
+```sh
+wrangler secret put DEEPL_API_KEY
+```
+
+`MAX_TEXT_CHARS` and the custom route/domain are configured in `wrangler.jsonc`.
+
+## Constraints worth knowing
+
+- DeepL request size limit: 128 KiB (`text + context`).
+- A glossary term is at most 1024 UTF-8 bytes; a glossary at most 10 MiB; an account holds at most 1000 glossaries.
+- A glossary requires an explicit source language. Glossary languages use base codes (`en`); translation targets can be regional (`en-US`). Formality only applies to targets that support it. Context is not translated and not billed.
