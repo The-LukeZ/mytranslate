@@ -33,12 +33,12 @@ It is the owner's own DeepL key behind the owner's own domain, so it has none of
 ## Capabilities and Constraints
 
 - **Stack (existing):** SvelteKit on Svelte 5 runes, deployed as a Cloudflare Worker through adapter-cloudflare; shadcn-svelte (bits-ui, Tailwind CSS v4), `@lucide/svelte` icons, `mode-watcher` (light/dark), `svelte-sonner` toasts. Server ↔ client uses SvelteKit remote functions validated with valibot. `ssr = false`.
-- **No server storage.** The API key is a Worker secret that never reaches the browser, glossaries live in DeepL, and preferences (languages, glossary per pair, formality, model, options state) live in `localStorage`. Source text and context are never persisted.
+- **No server storage.** The API key is a Worker secret that never reaches the browser, glossaries live in DeepL, and preferences (languages, glossary per pair, formality, model, options state) live in `localStorage`. Source text and context never leave the tab: back/forward history of translations lives in per-tab `sessionStorage` (SvelteKit snapshots), never in the URL or on the server.
 - **No auth code.** Cloudflare Access protects the whole app; `workers.dev` and preview URLs are disabled.
 - **Limits:** `MAX_TEXT_CHARS` defaults to 30,000 code points and never goes below 5,000. DeepL's request size limit is 128 KiB. Each glossary term is at most 1024 UTF-8 bytes, a glossary at most 10 MiB, and an account holds at most 1000 glossaries.
 - **DeepL rules the UI must respect:** a glossary requires an explicit source language; glossary languages are base codes (`en`), while targets can be regional (`en-US`); formality applies only to targets that support it; context is not translated and not billed.
 - **Terminology:** "glossary" (a named DeepL glossary), "language pair" / "dictionary" (one source→target set of entries inside a glossary), "entry" / "term", "usage" (billed characters against the monthly limit).
-- **Out of scope for now:** document translation, DeepL Write, style rules, translation memories, several glossaries at once, translation history, CSV/TSV glossary import and export.
+- **Out of scope for now:** document translation, DeepL Write, style rules, translation memories, several glossaries at once, a translation history list (back/forward between translations exists), CSV/TSV glossary import and export.
 
 ## Brand Commitments
 

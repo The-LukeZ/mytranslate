@@ -11,7 +11,7 @@ A front-end for the DeepL API: translate text and manage DeepL v3 glossaries. Sv
 - Translate text (up to `MAX_TEXT_CHARS`, default 30,000 characters) with source/target language, formality, context and model type.
 - DeepL v3 glossaries: list, create, rename, delete, edit entries inline, multiple language pairs per glossary, add a term directly from a translation.
 - Light/dark theme, keyboard shortcuts (`Ctrl/⌘+Enter` to translate, `Ctrl/⌘+Shift+C` to copy), usage counter against the monthly DeepL quota.
-- No server-side storage: the DeepL API key is a Worker secret, glossaries live in DeepL, preferences live in `localStorage`. Source text and context are never persisted.
+- No server-side storage: the DeepL API key is a Worker secret, glossaries live in DeepL, preferences live in `localStorage`. Source text and context never leave the tab: back/forward history of translations lives in per-tab `sessionStorage` (SvelteKit snapshots), never in the URL or on the server.
 
 ## Stack
 
