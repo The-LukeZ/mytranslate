@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "mytranslate",
+  "short_name": "mytranslate",
+  "description": "Personal DeepL translator with editable glossaries.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [{ "name": "Glossaries", "url": "/glossaries", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }]
+}

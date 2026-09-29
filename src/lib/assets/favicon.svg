@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>mytranslate</title>
+  <!-- The same message said twice: the outlined bubble is what you wrote, the solid one its translation.
+       Colours follow the app's primary button, so the tile flips with the system theme. -->
+  <style>
+    .tile { fill: #171717; }
+    .ink { fill: #fafafa; }
+    .line { stroke: #fafafa; }
+    .cut { fill: #171717; stroke: #171717; }
+    .text { stroke: #171717; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #e5e5e5; }
+      .ink { fill: #171717; }
+      .line { stroke: #171717; }
+      .cut { fill: #e5e5e5; stroke: #e5e5e5; }
+      .text { stroke: #e5e5e5; }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="8" />
+  <!-- Source: outlined bubble, tail bottom-left -->
+  <path
+    class="line"
+    d="M9.5 6.5H18.5A3 3 0 0 1 21.5 9.5V15.5A3 3 0 0 1 18.5 18.5H12L8.5 21.75V18.4A3 3 0 0 1 6.5 15.5V9.5A3 3 0 0 1 9.5 6.5Z"
+    fill="none"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+  <!-- Translation: solid bubble in front, tail bottom-right, with a gap cut around it -->
+  <path
+    class="cut"
+    d="M14.5 12H23A3 3 0 0 1 26 15V21A3 3 0 0 1 24 23.9V27.25L20.5 24H14.5A3 3 0 0 1 11.5 21V15A3 3 0 0 1 14.5 12Z"
+    stroke-width="3.5"
+    stroke-linejoin="round"
+  />
+  <path
+    class="ink"
+    d="M14.5 12H23A3 3 0 0 1 26 15V21A3 3 0 0 1 24 23.9V27.25L20.5 24H14.5A3 3 0 0 1 11.5 21V15A3 3 0 0 1 14.5 12Z"
+  />
+  <!-- Two lines of text inside the translation -->
+  <path class="text" d="M15.5 16.25h7M15.5 19.75h4.5" stroke-width="1.75" stroke-linecap="round" />
+</svg>
