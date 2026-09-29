@@ -10,6 +10,7 @@
   import { useDebounce } from "runed";
   import { untrack } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
+  import { goto, snapshot } from "$app/navigation";
   import AddTermDialog from "#lib/components/add-term-dialog.svelte";
   import GlossarySelect, { glossariesForPair } from "#lib/components/glossary-select.svelte";
   import LanguageCombobox from "#lib/components/language-combobox.svelte";
@@ -31,6 +32,7 @@
   } from "#lib/languages.js";
   import { DEFAULT_FORMALITY, DEFAULT_MODEL, prefs } from "#lib/prefs.svelte.js";
   import type { Translation } from "#lib/server/deepl/types.js";
+  import { isSameTranslation, type TranslateEntry } from "#lib/translate-history.js";
   import { reportError } from "#lib/ui-state.svelte.js";
   import { cn } from "#lib/utils.js";
   import { listGlossaries } from "./glossaries.remote";
@@ -121,6 +123,13 @@
 
   /** Key of the last request sent, so an unchanged input is never billed twice. */
   let sentKey = "";
+  /** The user's input, without options that load late (glossary, formality); see `restoredInput`. */
+  const inputKey = $derived(JSON.stringify([text, context, prefs.sourceLang, prefs.targetLang]));
+  /**
+   * Input of a restored, already translated history entry. Auto-translate waits until the input changes,
+   * even if `requestKey` shifts as glossaries and languages load after a reload.
+   */
+  let restoredInput = "";
   /** Bumped per request; only the newest response may land, however they arrive. */
   let seq = 0;
 
@@ -142,10 +151,13 @@
       const next = await translate(request);
       if (mine !== seq) return;
       result = next;
-      if (outputEdited && !manual) return; // keep the user's edits; only Translate replaces them
-      output = next.text;
-      outputEdited = false;
-      if (manual) revealOutput();
+      // Keep the user's edits; only Translate replaces them.
+      if (!outputEdited || manual) {
+        output = next.text;
+        outputEdited = false;
+        if (manual) revealOutput();
+      }
+      void recordEntry();
     } catch (e) {
       if (mine !== seq) return;
       sentKey = ""; // let the same input be retried
@@ -156,9 +168,67 @@
   // Translate automatically once the input has been still for a second.
   const autoTranslate = useDebounce(() => doTranslate(), 1000);
   $effect(() => {
-    if (!requestKey || requestKey === sentKey || outputEdited) return;
+    if (!requestKey || requestKey === sentKey || outputEdited || inputKey === restoredInput) return;
     untrack(() => autoTranslate().catch(() => {})); // a newer keystroke cancelled it
   });
+
+  // ── History ────────────────────────────────────────────────────────────────
+  // Each distinct translation gets its own browser history entry, so back/forward cycles through them.
+  // Entries live in SvelteKit snapshots (per tab, sessionStorage), never in the URL or on the server.
+
+  /** The current history entry as of its last translation; a new translation is compared against it. */
+  let landed: TranslateEntry | null = null;
+  /** While our own push leaves an entry, that entry keeps its last translation rather than the new input. */
+  let leaving: TranslateEntry | null | undefined;
+
+  function liveEntry(): TranslateEntry {
+    return {
+      text,
+      context,
+      sourceLang: prefs.sourceLang,
+      targetLang: prefs.targetLang,
+      output,
+      outputEdited,
+      result: $state.snapshot(result),
+      translated: !!requestKey && (requestKey === sentKey || inputKey === restoredInput),
+    };
+  }
+
+  snapshot<TranslateEntry | null>({
+    id: "translate",
+    capture: () => (leaving !== undefined ? leaving : liveEntry()),
+    restore: applyEntry,
+  });
+
+  /** Record the translation now shown: a continuation stays in this entry, anything else pushes a new one. */
+  async function recordEntry() {
+    const prev = landed;
+    landed = liveEntry();
+    if (prev && isSameTranslation(prev, landed)) return;
+    leaving = prev;
+    try {
+      await goto("", { shallow: true });
+    } finally {
+      leaving = undefined;
+    }
+  }
+
+  function applyEntry(entry: TranslateEntry | null) {
+    autoTranslate.cancel();
+    seq++; // a late response must not overwrite the restored entry
+    landed = entry;
+    if (entry) {
+      prefs.sourceLang = entry.sourceLang;
+      prefs.targetLang = entry.targetLang;
+    }
+    text = entry?.text ?? "";
+    context = entry?.context ?? "";
+    result = entry?.result ?? null;
+    output = entry?.output ?? "";
+    outputEdited = entry?.outputEdited ?? false;
+    sentKey = entry?.translated ? requestKey : "";
+    restoredInput = entry?.translated ? inputKey : "";
+  }
 
   /** Drop the translation and any in-flight request. */
   function resetOutput() {
@@ -202,6 +272,7 @@
       text = prevOutput;
       output = prevText;
       sentKey = requestKey; // the output already shows this pair; don't bill a round trip
+      void recordEntry(); // back undoes the swap
     }
   }
 
@@ -219,6 +290,8 @@
   function onOutputInput() {
     outputEdited = true;
     autoTranslate.cancel();
+    // Edits belong to the translation shown, so this entry keeps them even if a new one is pushed later.
+    if (landed) landed = { ...landed, output, outputEdited };
   }
 
   function clear() {
