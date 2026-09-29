@@ -50,6 +50,8 @@
   let text = $state("");
   let context = $state("");
   let result = $state<Translation | null>(null);
+  /** Editable copy of the translation; edits never trigger a translation. */
+  let output = $state("");
   let copied = $state(false);
   let addTermOpen = $state(false);
   let optionsOpen = $state(false);
@@ -123,7 +125,7 @@
   // ── Actions ────────────────────────────────────────────────────────────────
   async function doTranslate({ reveal = false } = {}) {
     autoTranslate.cancel();
-    if (!request) return (result = null);
+    if (!request) return resetOutput();
     else if (requestKey === sentKey) return;
     const mine = ++seq;
     sentKey = requestKey;
@@ -131,6 +133,7 @@
       const next = await translate(request);
       if (mine !== seq) return;
       result = next;
+      output = next.text;
       if (reveal) revealOutput();
     } catch (e) {
       if (mine !== seq) return;
@@ -144,6 +147,23 @@
   $effect(() => {
     if (!requestKey || requestKey === sentKey) return;
     untrack(() => autoTranslate().catch(() => {})); // a newer keystroke cancelled it
+  });
+
+  /** Drop the translation and any in-flight request. */
+  function resetOutput() {
+    autoTranslate.cancel();
+    seq++;
+    sentKey = "";
+    result = null;
+    output = "";
+  }
+
+  // An empty source means nothing to show: clear the translation too.
+  $effect(() => {
+    if (text.trim()) return;
+    untrack(() => {
+      if (result || output || sentKey) resetOutput();
+    });
   });
 
   /** On stacked layouts the translation lands below the fold; bring its top into view. */
@@ -163,16 +183,19 @@
     }
     prefs.sourceLang = nextSource;
     prefs.targetLang = nextTarget;
-    if (result) {
-      text = result.text;
-      result = null;
+    if (output.trim()) {
+      const prevText = text;
+      const prevOutput = output;
+      resetOutput();
+      text = prevOutput;
+      output = prevText;
     }
   }
 
   async function copyOutput() {
-    if (!result) return;
+    if (!output) return;
     try {
-      await navigator.clipboard.writeText(result.text);
+      await navigator.clipboard.writeText(output);
       copied = true;
       setTimeout(() => (copied = false), 1500);
     } catch {
@@ -182,7 +205,7 @@
 
   function clear() {
     text = "";
-    result = null;
+    resetOutput();
     sourceEl?.focus();
   }
 
@@ -194,7 +217,7 @@
   }
 
   function openAddTerm() {
-    addTermPrefill = { source: pick(sourceEl, text), target: pick(outputEl, result?.text ?? "") };
+    addTermPrefill = { source: pick(sourceEl, text), target: pick(outputEl, output) };
     addTermOpen = true;
   }
 
@@ -357,19 +380,20 @@
   >
     <Textarea
       bind:ref={outputEl}
-      value={result?.text ?? ""}
-      readonly
+      bind:value={output}
       aria-label="Translation"
       placeholder={translate.pending > 0 ? "Translating…" : "Translation"}
       class="min-h-32 flex-1 rounded-b-none border-0 bg-transparent p-4 text-base whitespace-pre-wrap focus-visible:ring-0 md:min-h-64 md:text-base"
     />
     <div class="flex min-h-10 flex-wrap items-center gap-2 border-t px-4 py-1.5 text-xs text-muted-foreground">
-      {#if result}
-        <Badge variant="secondary" title="Detected source language">
-          Detected: {langLabel(languages, result.detected_source_language)}
-        </Badge>
-        {#if result.billed_characters !== undefined}
-          <span class="tabular-nums">Billed: {nf.format(result.billed_characters)}</span>
+      {#if result || output}
+        {#if result}
+          <Badge variant="secondary" title="Detected source language">
+            Detected: {langLabel(languages, result.detected_source_language)}
+          </Badge>
+          {#if result.billed_characters !== undefined}
+            <span class="tabular-nums">Billed: {nf.format(result.billed_characters)}</span>
+          {/if}
         {/if}
         <Button
           variant="ghost"
