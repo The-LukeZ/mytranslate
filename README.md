@@ -29,7 +29,7 @@ Requires Node ≥24 and pnpm.
 pnpm install
 ```
 
-Create a `.dev.vars` file (or copy `.env.example`) with your DeepL API key:
+Create a `.env` file (or copy `.env.example`) with your DeepL API key:
 
 ```
 DEEPL_API_KEY="your-deepl-api-key"
