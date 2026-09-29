@@ -14,6 +14,7 @@
   import { ui } from "#lib/ui-state.svelte.js";
   import { cn } from "#lib/utils.js";
   import { getUsage } from "./meta.remote";
+  import { beforeNavigate } from "$app/navigation";
 
   let { children } = $props();
 
@@ -25,6 +26,17 @@
     { href: resolve("/"), label: "Translate", match: (p: string) => p === "/" },
     { href: resolve("/glossaries"), label: "Glossaries", match: (p: string) => p.startsWith("/glossaries") },
   ];
+
+  // Prevent navigation if the user is navigating to the same page
+  beforeNavigate((nav) => {
+    const beforeRoute = nav.from?.url.href;
+    const afterRoute = nav.to?.url.href;
+    if (beforeRoute && afterRoute && beforeRoute === afterRoute) {
+      nav.cancel();
+      console.log("Navigation canceled: already on the same page. Where do you think you're going?");
+      return;
+    }
+  });
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
