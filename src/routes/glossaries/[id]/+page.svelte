@@ -20,6 +20,7 @@
   import { Skeleton } from "#lib/components/ui/skeleton/index.js";
   import * as Tabs from "#lib/components/ui/tabs/index.js";
   import { MAX_TERM_BYTES, utf8Bytes } from "#lib/glossary/tsv.js";
+  import PairLabel from "#lib/components/pair-label.svelte";
   import { pairLabel, sameLang, sourceLanguages, targetLanguages } from "#lib/languages.js";
   import type { GlossaryDictionaryInfo } from "#lib/server/deepl/types.js";
   import { errorStatus, reportError } from "#lib/ui-state.svelte.js";
@@ -268,7 +269,7 @@
       <Tabs.List aria-label="Language pairs" class="flex-wrap">
         {#each dictionaries as d (pairKey(d))}
           <Tabs.Trigger value={pairKey(d)}>
-            {pairLabel(d.source_lang, d.target_lang)}
+            <PairLabel source={d.source_lang} target={d.target_lang} />
             <span class="text-xs text-muted-foreground tabular-nums">{d.entry_count}</span>
           </Tabs.Trigger>
         {/each}
@@ -285,7 +286,7 @@
           onclick={() => (confirmDeletePair = true)}
         >
           <Trash2Icon />
-          Delete {pairLabel(active.source_lang, active.target_lang)}
+          Delete <PairLabel source={active.source_lang} target={active.target_lang} />
         </Button>
       {/if}
     </div>
@@ -372,7 +373,9 @@
         </div>
       </div>
       {#if pairExists}
-        <p class="text-sm text-destructive">This glossary already has {pairLabel(newSource, newTarget)}.</p>
+        <p class="text-sm text-destructive">
+          This glossary already has <PairLabel source={newSource} target={newTarget} />.
+        </p>
       {:else if newSource && newTarget && sameLang(newSource, newTarget)}
         <p class="text-sm text-destructive">Source and target must differ.</p>
       {/if}

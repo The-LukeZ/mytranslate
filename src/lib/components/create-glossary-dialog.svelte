@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import LoaderIcon from "@lucide/svelte/icons/loader-circle";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import XIcon from "@lucide/svelte/icons/x";
@@ -132,7 +133,7 @@
             placeholder="Source language"
             disabled={languagesQuery.loading && !languagesQuery.current}
           />
-          <span aria-hidden="true" class="text-muted-foreground">→</span>
+          <ArrowRightIcon aria-hidden="true" class="size-4 shrink-0 text-muted-foreground" />
           <LanguageCombobox
             label="Target language"
             languages={targets}

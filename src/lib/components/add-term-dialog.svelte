@@ -1,7 +1,9 @@
 <script lang="ts">
+  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import LoaderIcon from "@lucide/svelte/icons/loader-circle";
   import TriangleAlertIcon from "@lucide/svelte/icons/triangle-alert";
   import { toast } from "svelte-sonner";
+  import PairLabel from "#lib/components/pair-label.svelte";
   import { Button } from "#lib/components/ui/button/index.js";
   import * as Dialog from "#lib/components/ui/dialog/index.js";
   import { Input } from "#lib/components/ui/input/index.js";
@@ -117,7 +119,7 @@
       <Dialog.Title>Add to glossary</Dialog.Title>
       <Dialog.Description>
         {#if sourceLang && targetLang}
-          Language pair <span class="font-medium text-foreground">{pairLabel(sourceLang, targetLang)}</span>
+          Language pair <PairLabel source={sourceLang} target={targetLang} class="font-medium text-foreground" />
         {:else}
           Choose a source language or translate first so the language can be detected.
         {/if}
@@ -146,7 +148,7 @@
         </Select.Root>
         {#if choice !== NEW && selected && !dictionary}
           <p class="text-xs text-muted-foreground">
-            This glossary has no {pairLabel(sourceLang, targetLang)} pair yet; it will be added.
+            This glossary has no <PairLabel source={sourceLang} target={targetLang} /> pair yet; it will be added.
           </p>
         {/if}
       </div>
@@ -191,7 +193,11 @@
           class="flex items-start gap-2 rounded-2xl bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400"
         >
           <TriangleAlertIcon class="mt-0.5 size-4 shrink-0" />
-          <span>Will replace “{existing.source} → {existing.target}”.</span>
+          <span class="inline-flex flex-wrap items-center gap-1">
+            Will replace “{existing.source}
+            <ArrowRightIcon aria-hidden="true" class="size-[1em] shrink-0" />
+            {existing.target}”.
+          </span>
         </p>
       {/if}
 

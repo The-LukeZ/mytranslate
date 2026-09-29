@@ -18,7 +18,7 @@
   import { Label } from "#lib/components/ui/label/index.js";
   import { Skeleton } from "#lib/components/ui/skeleton/index.js";
   import * as Table from "#lib/components/ui/table/index.js";
-  import { pairLabel } from "#lib/languages.js";
+  import PairLabel from "#lib/components/pair-label.svelte";
   import type { Glossary } from "#lib/server/deepl/types.js";
   import { reportError } from "#lib/ui-state.svelte.js";
   import { deleteGlossary, listGlossaries, renameGlossary } from "../glossaries.remote";
@@ -147,7 +147,7 @@
                 <div class="flex flex-wrap gap-1">
                   {#each g.dictionaries as d (`${d.source_lang}-${d.target_lang}`)}
                     <Badge variant="secondary" class="tabular-nums">
-                      {pairLabel(d.source_lang, d.target_lang).replace(" → ", "→")} · {nf.format(d.entry_count)}
+                      <PairLabel source={d.source_lang} target={d.target_lang} /> · {nf.format(d.entry_count)}
                     </Badge>
                   {:else}
                     <span class="text-sm text-muted-foreground">No pairs</span>
